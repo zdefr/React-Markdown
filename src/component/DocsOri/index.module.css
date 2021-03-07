@@ -1,0 +1,21 @@
+.ori_markdown{
+    width: 800px;
+    height: 99%;
+    position: fixed;
+    left:10px;
+    background-color: white;
+    border: 2px solid black;
+    outline: none;
+    padding: 30px 50px;
+}
+
+.des_markdown{
+    width: 800px;
+    height: 99%;
+    position: fixed;
+    right: 10px;
+    background-color: white;
+    border: 2px solid black;
+    outline: none;
+    padding: 30px 50px;
+}
