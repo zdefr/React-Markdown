@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import style from './index.module.css'
+import classnames from 'classnames'
 
 export default class Docs extends Component {
     state = {
@@ -23,7 +24,7 @@ export default class Docs extends Component {
                 </div>
                 <div className={style.des_markdown}>
                     {
-                        this.state.Ast.map((item)=>{
+                        this.state.Ast.map((item) => {
                             return AstToDom(item);
                         })
                     }
@@ -50,9 +51,6 @@ function markdownToAst(text, preText, preAst) {
                         break;
                     }
                 }
-                console.log('i:', i);
-                console.log('astc:', astc);
-                console.log(i + preAst[astc].offset);
                 if ((!update) && (text[i + preAst[astc].offset][0] === '*' || text[i + preAst[astc].offset][0] === '-' || text[i + preAst[astc].offset][0] === '+')
                     && (text[i + preAst[astc].offset][1] === ' ' || text[i + preAst[astc].offset][1] === ' ')) {
                     update = true;
@@ -98,7 +96,7 @@ function markdownToAst(text, preText, preAst) {
                     if (str[h] === ' ' || str[h] === ' ') {
                         ast.type = 'header';
                         ast.level = (count > 6 ? 6 : count);
-                        ast.children = substrToChildren(str.substring(count));
+                        ast.children = substrToChildren(str.substring(count + 1));
                     } else {
                         ast.type = 'texts';
                         ast.children = substrToChildren(str);
@@ -114,9 +112,33 @@ function markdownToAst(text, preText, preAst) {
             for (let h = 1; h < str.length; h++) {
                 if (str[h] !== '>') {
                     if (str[h] === ' ' || str[h] === ' ') {
-                        ast.type = 'block';
-                        ast.level = (count > 6 ? 6 : count);
-                        ast.children = substrToChildren(str.substring(count));
+                        if (str.substring(count + 1)[0] === '#') {
+
+                            let count_i = 1;
+                            let str_i = str.substring(count + 1);
+                            for (let h_i = 1; h_i < str_i.length; h_i++) {
+                                if (str_i[h_i] !== '#') {
+                                    if (str_i[h_i] === ' ' || str_i[h_i] === ' ') {
+                                        ast.type = 'header&block';
+                                        ast.h_level = (count_i > 6 ? 6 : count_i);
+                                        ast.b_level = (count > 6 ? 6 : count);
+                                        ast.children = substrToChildren(str_i.substring(count_i + 1));
+                                    } else {
+                                        ast.type = 'block';
+                                        ast.level = (count > 6 ? 6 : count);
+                                        ast.children = substrToChildren(str_i);
+                                    }
+                                    //分析内部
+                                    break;
+                                }
+                                count_i++;
+                            }
+                        } else {
+                            ast.type = 'block';
+                            ast.level = (count > 6 ? 6 : count);
+                            ast.children = substrToChildren(str.substring(count+1));
+                        }
+
                     } else {
                         ast.type = 'texts';
                         ast.children = substrToChildren(str);
@@ -145,7 +167,7 @@ function markdownToAst(text, preText, preAst) {
             ast.type = 'uList';
             ast.offset = offsetLine;
             i += (offsetLine - 1);
-        }else{
+        } else {
             ast.type = 'texts';
             ast.children = substrToChildren(str);
         }
@@ -163,7 +185,7 @@ function substrToChildren(str) {
     if (str.split('***').length >= 3) {
         const tep = str.split('***');
         if (tep[0].length > 0) {
-            spl_s(tep[0]).forEach((item)=>{
+            spl_s(tep[0]).forEach((item) => {
                 children.push(item);
             })
         }
@@ -175,7 +197,7 @@ function substrToChildren(str) {
                         value: tep[i]
                     })
                 } else {
-                    spl_s(tep[i]).forEach((item)=>{
+                    spl_s(tep[i]).forEach((item) => {
                         children.push(item);
                     })
                 }
@@ -188,12 +210,12 @@ function substrToChildren(str) {
             }
         }
         if (tep[tep.length - 1].length > 0) {
-            spl_s(tep[tep.length - 1]).forEach((item)=>{
+            spl_s(tep[tep.length - 1]).forEach((item) => {
                 children.push(item);
             })
         }
     } else {
-        spl_s(str).forEach((item)=>{
+        spl_s(str).forEach((item) => {
             children.push(item);
         })
     }
@@ -208,7 +230,7 @@ function spl_s(str) {
     if (str.split('**').length >= 3) {
         const tep = str.split('**');
         if (tep[0].length > 0) {
-            spl_e(tep[0]).forEach((item)=>{
+            spl_e(tep[0]).forEach((item) => {
                 children.push(item);
             })
         }
@@ -220,7 +242,7 @@ function spl_s(str) {
                         value: tep[i]
                     })
                 } else {
-                    spl_e(tep[i]).forEach((item)=>{
+                    spl_e(tep[i]).forEach((item) => {
                         children.push(item);
                     })
                 }
@@ -233,12 +255,12 @@ function spl_s(str) {
             }
         }
         if (tep[tep.length - 1].length > 0) {
-            spl_e(tep[tep.length - 1]).forEach((item)=>{
+            spl_e(tep[tep.length - 1]).forEach((item) => {
                 children.push(item);
             })
         }
     } else {
-        spl_e(str).forEach((item)=>{
+        spl_e(str).forEach((item) => {
             children.push(item);
         })
     }
@@ -296,22 +318,42 @@ function spl_e(str) {
     return children;
 }
 
-function AstToDom(item){
-    if(item.type === 'header'){
+function AstToDom(item) {
+    if (item.type === 'header') {
         return (
-            <h1>
+            <p className={headerLevel(item.level)}>
                 {
-                    item.children.map((child)=>{
+                    item.children.map((child) => {
                         return childToDom(child);
                     })
                 }
-            </h1>
+            </p>
+        );
+    } else if (item.type === 'block') {
+        return (
+            <p className={blockLevel(item.level)}>
+                {
+                    item.children.map((child) => {
+                        return childToDom(child);
+                    })
+                }
+            </p>
+        );
+    } else if(item.type === 'header&block'){
+        return (
+            <p className={classnames(blockLevel(item.b_level),headerLevel(item.h_level))}>
+                {
+                    item.children.map((child) => {
+                        return childToDom(child);
+                    })
+                }
+            </p>
         );
     }else{
         return (
             <p>
                 {
-                    item.children.map((child)=>{
+                    item.children.map((child) => {
                         return childToDom(child);
                     })
                 }
@@ -320,22 +362,60 @@ function AstToDom(item){
     }
 }
 
-function childToDom(child){
-    if(child.type==='strong'){
+function childToDom(child) {
+    if (child.type === 'strong') {
         return (
             <strong>{child.value}</strong>
         );
-    }else if(child.type==='em'){
+    } else if (child.type === 'em') {
         return (
             <em>{child.value}</em>
         );
-    }else if(child.type==='strong&em'){
+    } else if (child.type === 'strong&em') {
         return (
             <strong><em>{child.value}</em></strong>
         );
-    }else{
+    } else {
         return (
             <span>{child.value}</span>
         );
+    }
+}
+
+function blockLevel(level) {
+    switch (level) {
+        case 1:
+            return style.block_1;
+        case 2:
+            return style.block_2;
+        case 3:
+            return style.block_3;
+        case 4:
+            return style.block_4;
+        case 5:
+            return style.block_5;
+        case 6:
+            return style.block_6;
+        default:
+            break;
+    }
+}
+
+function headerLevel(level) {
+    switch (level) {
+        case 1:
+            return style.header_1;
+        case 2:
+            return style.header_2;
+        case 3:
+            return style.header_3;
+        case 4:
+            return style.header_4;
+        case 5:
+            return style.header_5;
+        case 6:
+            return style.header_6;
+        default:
+            break;
     }
 }
