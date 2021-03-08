@@ -1,5 +1,5 @@
 .ori_markdown{
-    width: 800px;
+    width: 40%;
     height: 99%;
     position: fixed;
     left:10px;
@@ -10,7 +10,7 @@
 }
 
 .des_markdown{
-    width: 800px;
+    width: 40%;
     height: 99%;
     position: fixed;
     right: 10px;
