@@ -66,6 +66,8 @@ export default class Docs extends Component {
 
   isSelected = () => {
     if (document.getSelection().isCollapsed) {
+      this.bold.current.className = classnames(icon.iconfont, icon.iconBold, style.toolsButton);
+      this.xt.current.className = classnames(icon.iconfont, icon.iconXieti, style.toolsButton);
       return;
     } else {
       const str = document.getSelection().toString();
