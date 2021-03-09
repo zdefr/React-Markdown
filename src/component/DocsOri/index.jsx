@@ -174,7 +174,7 @@ function markdownToAst(text, preText, preAst) {
           let child = {
             line: list,
             offset: text[list].length - 2,
-            value: text[list].substring(2),
+            children: substrToChildren(text[list].substring(2),'***'),
           };
           ast.children.push(child);
         } else {
@@ -270,7 +270,6 @@ function substrToChildren(str, sp) {
   return children;
 }
 
-
 function AstToDom(item) {
   if (item.type === "header") {
     return (
@@ -301,7 +300,25 @@ function AstToDom(item) {
         })}
       </p>
     );
-  } else {
+  } else if(item.type==='uList'){
+    return (
+        <ul>
+            {
+                item.children.map((child)=>{
+                    return (
+                        <li>
+                            {
+                                child.children.map((listChild)=>{
+                                    return childToDom(listChild);
+                                })
+                            }
+                        </li>
+                    );
+                })
+            }
+        </ul>
+    );
+  }else{
     return (
       <p>
         {item.children.map((child) => {
