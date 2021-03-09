@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import style from "./index.module.css";
 import classnames from "classnames";
-import icon from './icons/iconfont.module.css'
+import icon from "./icons/iconfont.module.css";
 
 export default class Docs extends Component {
   state = {
@@ -23,26 +23,135 @@ export default class Docs extends Component {
   toolsClick = (type) => {
     return (event) => {
       let selection = document.getSelection();
+      if (selection.isCollapsed) {
+        event.target.blur();
+        return;
+      }
       let str = selection.toString();
       switch (type) {
-        case 'block':
-          if (str.substring(0, 2) === '**' && str.substring(str.length - 2, str.length) === '**') {
+        case "block":
+          if (
+            str.substring(0, 2) === "**" &&
+            str.substring(str.length - 2, str.length) === "**"
+          ) {
             str = str.substring(2, str.length - 2);
           } else {
-            str = '**' + selection.toString() + '**';
+            str = "**" + selection.toString() + "**";
           }
           break;
-        case 'xt':
-          if (str.substring(0, 3) === '***' && str.substring(str.length - 3, str.length) === '***') {
+        case "xt":
+          if (
+            str.substring(0, 3) === "***" &&
+            str.substring(str.length - 3, str.length) === "***"
+          ) {
             str = str.substring(1, str.length - 1);
-          } else if (str.substring(0, 2) === '**' && str.substring(str.length - 2, str.length) === '**') {
-            str = '*' + selection.toString() + '*';
-          } else if (str[0] === '*' && str[str.length - 1] === '*') {
+          } else if (
+            str.substring(0, 2) === "**" &&
+            str.substring(str.length - 2, str.length) === "**"
+          ) {
+            str = "*" + selection.toString() + "*";
+          } else if (str[0] === "*" && str[str.length - 1] === "*") {
             str = str.substring(1, str.length - 1);
           } else {
-            str = '*' + selection.toString() + '*';
+            str = "*" + selection.toString() + "*";
           }
           break;
+        case "h1":
+        case "h2":
+        case "h3":
+        case "h4":
+        case "h5":
+        case "h6":
+          const level = parseInt(type[1]);
+          console.log(level);
+          let range = document.createRange();
+          range.setStartBefore(selection.anchorNode);
+          range.setEndAfter(selection.anchorNode);
+          str = selection.anchorNode.nodeValue;
+          switch (level) {
+            case 6:
+              str = "###### " + str;
+              break;
+            case 5:
+              str = "##### " + str;
+              break;
+            case 4:
+              str = "#### " + str;
+              break;
+            case 3:
+              str = "### " + str;
+              break;
+            case 2:
+              str = "## " + str;
+              break;
+            case 1:
+              str = "# " + str;
+              break;
+            default:
+              break;
+          }
+          range.deleteContents();
+          range.insertNode(document.createTextNode(str));
+          this.setState({
+            text: this.edit.current.innerText.split("\n"),
+            Ast: markdownToAst(
+              this.edit.current.innerText.split("\n"),
+              this.state.text,
+              this.state.Ast
+            ),
+          });
+          event.target.blur();
+          this.isSelected();
+          return;
+
+        case "b1":
+        case "b2":
+        case "b3":
+        case "b4":
+        case "b5":
+        case "b6":
+          const blevel = parseInt(type[1]);
+          console.log(blevel);
+          let brange = document.createRange();
+          brange.setStartBefore(selection.anchorNode);
+          brange.setEndAfter(selection.anchorNode);
+          str = selection.anchorNode.nodeValue;
+          switch (blevel) {
+            case 6:
+              str = ">>>>>>> " + str;
+              break;
+            case 5:
+              str = ">>>>> " + str;
+              break;
+            case 4:
+              str = ">>>> " + str;
+              break;
+            case 3:
+              str = ">>> " + str;
+              break;
+            case 2:
+              str = ">> " + str;
+              break;
+            case 1:
+              str = "> " + str;
+              break;
+            default:
+              break;
+          }
+          brange.deleteContents();
+          brange.insertNode(document.createTextNode(str));
+          this.setState({
+            text: this.edit.current.innerText.split("\n"),
+            Ast: markdownToAst(
+              this.edit.current.innerText.split("\n"),
+              this.state.text,
+              this.state.Ast
+            ),
+          });
+          event.target.blur();
+          this.isSelected();
+          return;
+
         default:
           str = selection.toString;
           break;
@@ -61,43 +170,185 @@ export default class Docs extends Component {
       });
       event.target.blur();
       this.isSelected();
-    }
-  }
+    };
+  };
 
   isSelected = () => {
     if (document.getSelection().isCollapsed) {
-      this.bold.current.className = classnames(icon.iconfont, icon.iconBold, style.toolsButton);
-      this.xt.current.className = classnames(icon.iconfont, icon.iconXieti, style.toolsButton);
+      this.bold.current.className = classnames(
+        icon.iconfont,
+        icon.iconBold,
+        style.toolsButton
+      );
+      this.xt.current.className = classnames(
+        icon.iconfont,
+        icon.iconXieti,
+        style.toolsButton
+      );
       return;
     } else {
       const str = document.getSelection().toString();
-      if(str.substring(0, 3) === '***' && str.substring(str.length - 3, str.length) === '***'){
-        this.bold.current.className = classnames(icon.iconfont, icon.iconJiacuxuanzhong, style.toolsButton);
-        this.xt.current.className = classnames(icon.iconfont, icon.iconXietixuanzhong, style.toolsButton);
-      }else if (str.substring(0, 2) === '**' && str.substring(str.length - 2, str.length) === '**') {
-        this.bold.current.className = classnames(icon.iconfont, icon.iconJiacuxuanzhong, style.toolsButton);
-        this.xt.current.className = classnames(icon.iconfont, icon.iconXieti, style.toolsButton);
-      } else if (str[0] === '*' && str[str.length - 1] === '*') {
-        this.xt.current.className = classnames(icon.iconfont, icon.iconXietixuanzhong, style.toolsButton);
-        this.bold.current.className = classnames(icon.iconfont, icon.iconBold, style.toolsButton);
+      if (
+        str.substring(0, 3) === "***" &&
+        str.substring(str.length - 3, str.length) === "***"
+      ) {
+        this.bold.current.className = classnames(
+          icon.iconfont,
+          icon.iconJiacuxuanzhong,
+          style.toolsButton
+        );
+        this.xt.current.className = classnames(
+          icon.iconfont,
+          icon.iconXietixuanzhong,
+          style.toolsButton
+        );
+      } else if (
+        str.substring(0, 2) === "**" &&
+        str.substring(str.length - 2, str.length) === "**"
+      ) {
+        this.bold.current.className = classnames(
+          icon.iconfont,
+          icon.iconJiacuxuanzhong,
+          style.toolsButton
+        );
+        this.xt.current.className = classnames(
+          icon.iconfont,
+          icon.iconXieti,
+          style.toolsButton
+        );
+      } else if (str[0] === "*" && str[str.length - 1] === "*") {
+        this.xt.current.className = classnames(
+          icon.iconfont,
+          icon.iconXietixuanzhong,
+          style.toolsButton
+        );
+        this.bold.current.className = classnames(
+          icon.iconfont,
+          icon.iconBold,
+          style.toolsButton
+        );
       } else {
-        this.bold.current.className = classnames(icon.iconfont, icon.iconBold, style.toolsButton);
-        this.xt.current.className = classnames(icon.iconfont, icon.iconXieti, style.toolsButton);
+        this.bold.current.className = classnames(
+          icon.iconfont,
+          icon.iconBold,
+          style.toolsButton
+        );
+        this.xt.current.className = classnames(
+          icon.iconfont,
+          icon.iconXieti,
+          style.toolsButton
+        );
       }
     }
-  }
+  };
+
+  headerIn = () => {
+    this.headerList.current.style.display = "block";
+  };
+
+  headerOut = () => {
+    this.headerList.current.style.display = "none";
+  };
 
   edit = React.createRef();
   bold = React.createRef();
-  xt = React.createRef();;
+  xt = React.createRef();
+  headerList = React.createRef();
 
   render() {
     return (
       <div className={style.outerBlock}>
         <div className={style.toolsBlock}>
           <span></span>
-          <button ref={this.bold} className={classnames(icon.iconfont, icon.iconBold, style.toolsButton)} onClick={this.toolsClick('block')}></button>
-          <button ref={this.xt} className={classnames(icon.iconfont, icon.iconXieti, style.toolsButton)} onClick={this.toolsClick('xt')}></button>
+
+          <div
+            className={style.outHeader}
+            onMouseEnter={this.headerIn}
+            onMouseLeave={this.headerOut}
+          >
+            <button
+              className={classnames(
+                icon.iconfont,
+                icon.iconH,
+                style.toolsButton
+              )}
+            ></button>
+            <div ref={this.headerList} className={style.headerHover}>
+              <button
+                className={classnames(
+                  icon.iconfont,
+                  icon.iconH1,
+                  style.buttonHeader
+                )}
+                onClick={this.toolsClick("h1")}
+              ></button>
+              <br />
+              <button
+                className={classnames(
+                  icon.iconfont,
+                  icon.iconH2,
+                  style.buttonHeader
+                )}
+                onClick={this.toolsClick("h2")}
+              ></button>
+              <br />
+              <button
+                className={classnames(
+                  icon.iconfont,
+                  icon.iconH3,
+                  style.buttonHeader
+                )}
+                onClick={this.toolsClick("h3")}
+              ></button>
+              <br />
+              <button
+                className={classnames(
+                  icon.iconfont,
+                  icon.iconH4,
+                  style.buttonHeader
+                )}
+                onClick={this.toolsClick("h4")}
+              ></button>
+              <br />
+              <button
+                className={classnames(
+                  icon.iconfont,
+                  icon.iconH5,
+                  style.buttonHeader
+                )}
+                onClick={this.toolsClick("h5")}
+              ></button>
+              <br />
+              <button
+                className={classnames(
+                  icon.iconfont,
+                  icon.iconH6,
+                  style.buttonHeader
+                )}
+                onClick={this.toolsClick("h6")}
+              ></button>
+              <br />
+            </div>
+          </div>
+
+          <button
+            ref={this.bold}
+            className={classnames(
+              icon.iconfont,
+              icon.iconBold,
+              style.toolsButton
+            )}
+            onClick={this.toolsClick("block")}
+          ></button>
+          <button
+            ref={this.xt}
+            className={classnames(
+              icon.iconfont,
+              icon.iconXieti,
+              style.toolsButton
+            )}
+            onClick={this.toolsClick("xt")}
+          ></button>
         </div>
         <div
           className={style.innerBlock}
@@ -110,7 +361,6 @@ export default class Docs extends Component {
           {this.state.Ast.map((item) => {
             return AstToDom(item);
           })}
-
         </div>
       </div>
     );

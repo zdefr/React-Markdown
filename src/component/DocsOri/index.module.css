@@ -3,7 +3,6 @@
     border: 2px solid black;
     padding: 20px 40px;
     outline: none;
-    z-index: 20;
 }
 
 .toolsBlock {
@@ -11,8 +10,8 @@
     background-color: white;
     border: 2px solid black;
     display: grid;
-    grid-template-columns: 100px 30px 30px 1fr;
-    line-height: 25px;
+    grid-template-columns: 100px 30px 30px 30px 30px 1fr;
+    line-height: 23px;
     z-index: 5;
     
 }
@@ -23,11 +22,39 @@
 }
 
 .toolsButton{
+    width: 100%;
+    height: 100%;
     margin: 0;
     padding: 0;
     background-color: white;
     border: none;
     z-index: 10;
+}
+
+.outHeader{
+    position: relative;
+}
+
+.headerHover{
+    width: 90%;
+    position: absolute;
+    top: 26px;
+    border: 1.5px solid black;
+    display: none;
+}
+
+.buttonHeader{
+    width: 100%;
+    height: 30px;
+    margin: 0;
+    padding: 0;
+    background-color: white;
+    border: none;
+}
+
+.buttonHeader:hover{
+    cursor: pointer;
+    box-shadow: 0 0 2px black inset;
 }
 
 .outerBlock {
