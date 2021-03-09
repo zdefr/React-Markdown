@@ -23,14 +23,14 @@ export default class Docs extends Component {
 
   render() {
     return (
-      <div>
+      <div className={style.outerBlock}>
         <div
-          className={style.ori_markdown}
+          className={style.innerBlock}
           ref={this.edit}
           contentEditable
           onInput={this.change}
         ></div>
-        <div className={style.des_markdown}>
+        <div className={style.innerBlock}>
           {this.state.Ast.map((item) => {
             return AstToDom(item);
           })}
