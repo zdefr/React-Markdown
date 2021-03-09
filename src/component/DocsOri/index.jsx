@@ -20,27 +20,95 @@ export default class Docs extends Component {
     });
   };
 
+  toolsClick = (type) => {
+    return (event) => {
+      let selection = document.getSelection();
+      let str = selection.toString();
+      switch (type) {
+        case 'block':
+          if (str.substring(0, 2) === '**' && str.substring(str.length - 2, str.length) === '**') {
+            str = str.substring(2, str.length - 2);
+          } else {
+            str = '**' + selection.toString() + '**';
+          }
+          break;
+        case 'xt':
+          if (str.substring(0, 3) === '***' && str.substring(str.length - 3, str.length) === '***') {
+            str = str.substring(1, str.length - 1);
+          } else if (str.substring(0, 2) === '**' && str.substring(str.length - 2, str.length) === '**') {
+            str = '*' + selection.toString() + '*';
+          } else if (str[0] === '*' && str[str.length - 1] === '*') {
+            str = str.substring(1, str.length - 1);
+          } else {
+            str = '*' + selection.toString() + '*';
+          }
+          break;
+        default:
+          str = selection.toString;
+          break;
+      }
+
+      let range = selection.getRangeAt(0);
+      range.deleteContents();
+      range.insertNode(document.createTextNode(str));
+      this.setState({
+        text: this.edit.current.innerText.split("\n"),
+        Ast: markdownToAst(
+          this.edit.current.innerText.split("\n"),
+          this.state.text,
+          this.state.Ast
+        ),
+      });
+      event.target.blur();
+      this.isSelected();
+    }
+  }
+
+  isSelected = () => {
+    if (document.getSelection().isCollapsed) {
+      return;
+    } else {
+      const str = document.getSelection().toString();
+      if(str.substring(0, 3) === '***' && str.substring(str.length - 3, str.length) === '***'){
+        this.bold.current.className = classnames(icon.iconfont, icon.iconJiacuxuanzhong, style.toolsButton);
+        this.xt.current.className = classnames(icon.iconfont, icon.iconXietixuanzhong, style.toolsButton);
+      }else if (str.substring(0, 2) === '**' && str.substring(str.length - 2, str.length) === '**') {
+        this.bold.current.className = classnames(icon.iconfont, icon.iconJiacuxuanzhong, style.toolsButton);
+        this.xt.current.className = classnames(icon.iconfont, icon.iconXieti, style.toolsButton);
+      } else if (str[0] === '*' && str[str.length - 1] === '*') {
+        this.xt.current.className = classnames(icon.iconfont, icon.iconXietixuanzhong, style.toolsButton);
+        this.bold.current.className = classnames(icon.iconfont, icon.iconBold, style.toolsButton);
+      } else {
+        this.bold.current.className = classnames(icon.iconfont, icon.iconBold, style.toolsButton);
+        this.xt.current.className = classnames(icon.iconfont, icon.iconXieti, style.toolsButton);
+      }
+    }
+  }
+
   edit = React.createRef();
+  bold = React.createRef();
+  xt = React.createRef();;
 
   render() {
     return (
       <div className={style.outerBlock}>
         <div className={style.toolsBlock}>
-            <span></span>
-            <span className={classnames(icon.iconfont,icon.iconBold,style.toolsButton)}></span>
-            <span className={classnames(icon.iconfont,icon.iconXieti,style.toolsButton)}></span>
+          <span></span>
+          <button ref={this.bold} className={classnames(icon.iconfont, icon.iconBold, style.toolsButton)} onClick={this.toolsClick('block')}></button>
+          <button ref={this.xt} className={classnames(icon.iconfont, icon.iconXieti, style.toolsButton)} onClick={this.toolsClick('xt')}></button>
         </div>
         <div
           className={style.innerBlock}
           ref={this.edit}
           contentEditable
           onInput={this.change}
+          onMouseUp={this.isSelected}
         ></div>
         <div className={style.innerBlock}>
           {this.state.Ast.map((item) => {
             return AstToDom(item);
           })}
-          
+
         </div>
       </div>
     );
@@ -198,7 +266,6 @@ function markdownToAst(text, preText, preAst) {
 
     Asts.push(ast);
   }
-  console.log(Asts);
   return Asts;
 }
 
