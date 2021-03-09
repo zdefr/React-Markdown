@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import style from "./index.module.css";
 import classnames from "classnames";
+import icon from './icons/iconfont.module.css'
 
 export default class Docs extends Component {
   state = {
@@ -24,6 +25,11 @@ export default class Docs extends Component {
   render() {
     return (
       <div className={style.outerBlock}>
+        <div className={style.toolsBlock}>
+            <span></span>
+            <span className={classnames(icon.iconfont,icon.iconBold,style.toolsButton)}></span>
+            <span className={classnames(icon.iconfont,icon.iconXieti,style.toolsButton)}></span>
+        </div>
         <div
           className={style.innerBlock}
           ref={this.edit}
@@ -34,6 +40,7 @@ export default class Docs extends Component {
           {this.state.Ast.map((item) => {
             return AstToDom(item);
           })}
+          
         </div>
       </div>
     );
@@ -174,7 +181,7 @@ function markdownToAst(text, preText, preAst) {
           let child = {
             line: list,
             offset: text[list].length - 2,
-            children: substrToChildren(text[list].substring(2),'***'),
+            children: substrToChildren(text[list].substring(2), "***"),
           };
           ast.children.push(child);
         } else {
@@ -300,25 +307,21 @@ function AstToDom(item) {
         })}
       </p>
     );
-  } else if(item.type==='uList'){
+  } else if (item.type === "uList") {
     return (
-        <ul>
-            {
-                item.children.map((child)=>{
-                    return (
-                        <li>
-                            {
-                                child.children.map((listChild)=>{
-                                    return childToDom(listChild);
-                                })
-                            }
-                        </li>
-                    );
-                })
-            }
-        </ul>
+      <ul>
+        {item.children.map((child) => {
+          return (
+            <li>
+              {child.children.map((listChild) => {
+                return childToDom(listChild);
+              })}
+            </li>
+          );
+        })}
+      </ul>
     );
-  }else{
+  } else {
     return (
       <p>
         {item.children.map((child) => {
