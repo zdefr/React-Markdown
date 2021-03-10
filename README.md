@@ -1,70 +1,32 @@
-# Getting Started with Create React App
+#### Markdown在线转义编辑器组件使用指南
+本项目基于react开发，可以以组件形式引用到项目中。
+##### 组件
+**定位**：./src/component/DocsOri
+**使用**：
+>> *//App.js*
+>> *//直接在需要使用该组件的地方引入，以虚拟Dom声明方式使用即可*
+>> *//本组件默认填充父元素，最小宽度为800px，可在 ./src/component/DocsOri/index.module.css(.outerBlock)中进行修改*
+>> import 'Docs' from './component/DocsOri';
+>> export default class App extends Component{
+>>   render(){
+>>     return (
+>>       <div id='app'>
+>>         <Docs/>
+>>       </div>
+>>     );
+>>   }
+>> }
+>> 
+>> *//index.js*
+>> ReactDOM.render(<App />,document.getElementById('root'));
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
-
-## Available Scripts
-
-In the project directory, you can run:
-
-### `yarn start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
-
-### `yarn test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `yarn build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `yarn eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+##### 算法
+**优势：**
+不同于其他Markdown在线编辑器，本组件利用客户端进行ast解析，可以有效减轻服务器压力
+受到react-diffing算法的启发，采用diffing算法计算ast，性能控制较好（仍有bug）
+**不足：**
+项目仍在开发中，支持的功能不完善（目前只支持header/block/strong/em/ul）
+代码冗余较多，可优化项仍有不少（例如使用防抖节流优化ast解析）
+toolsList处有较多bug，且算法可优化（待优化）
+网络同步接口未实现（计划使用防抖同步上传ast）
+目前仅支持react中引用
