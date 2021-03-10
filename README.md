@@ -6,19 +6,6 @@
 > *//App.js*
 > *//直接在需要使用该组件的地方引入，以虚拟Dom声明方式使用即可*
 > *//本组件默认填充父元素，最小宽度为800px，可在 ./src/component/DocsOri/index.module.css(.outerBlock)中进行修改*
-> import 'Docs' from './component/DocsOri';
-> export default class App extends Component{
->   render(){
->     return (
->       <div id='app'>
->         <Docs/>
->       </div>
->     );
->   }
-> }
-> 
-> *//index.js*
-> ReactDOM.render(<App />,document.getElementById('root'));
 
 ##### 算法
 **优势：**
