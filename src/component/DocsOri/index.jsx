@@ -28,8 +28,9 @@ export default class Docs extends Component {
         return;
       }
       let str = selection.toString();
+      let range = document.createRange();
       switch (type) {
-        case "block":
+        case "bold":
           if (
             str.substring(0, 2) === "**" &&
             str.substring(str.length - 2, str.length) === "**"
@@ -63,12 +64,11 @@ export default class Docs extends Component {
         case "h5":
         case "h6":
           const level = parseInt(type[1]);
-          console.log(level);
-          let range = document.createRange();
           range.setStartBefore(selection.anchorNode);
           range.setEndAfter(selection.anchorNode);
-          str = (selection.anchorNode.nodeValue?selection.anchorNode.nodeValue:selection.anchorNode.innerText);
-          console.log(selection.anchorNode);
+          str = selection.anchorNode.nodeValue
+            ? selection.anchorNode.nodeValue
+            : selection.anchorNode.innerText;
           switch (level) {
             case 6:
               str = "###### " + str;
@@ -107,42 +107,24 @@ export default class Docs extends Component {
           this.isSelected();
           return;
 
-        case "b1":
-        case "b2":
-        case "b3":
-        case "b4":
-        case "b5":
-        case "b6":
-          const blevel = parseInt(type[1]);
-          console.log(blevel);
-          let brange = document.createRange();
-          brange.setStartBefore(selection.anchorNode);
-          brange.setEndAfter(selection.anchorNode);
-          str = selection.anchorNode.nodeValue;
-          switch (blevel) {
-            case 6:
-              str = ">>>>>>> " + str;
-              break;
-            case 5:
-              str = ">>>>> " + str;
-              break;
-            case 4:
-              str = ">>>> " + str;
-              break;
-            case 3:
-              str = ">>> " + str;
-              break;
-            case 2:
-              str = ">> " + str;
-              break;
-            case 1:
-              str = "> " + str;
-              break;
-            default:
-              break;
+        case "block":
+          range.setStartBefore(selection.anchorNode);
+          range.setEndAfter(selection.anchorNode);
+          str = selection.anchorNode.nodeValue
+            ? selection.anchorNode.nodeValue
+            : selection.anchorNode.innerText;
+          let strs = str.split(' ');
+          if(strs[0][0]==='>'){
+            strs[0] = '>'+strs[0];
+          }else{
+            strs[0] = '> '+strs[0];
           }
-          brange.deleteContents();
-          brange.insertNode(document.createTextNode(str));
+          str = strs.reduce((acc,cur)=>{
+             return acc+' '+cur;
+          })
+          console.log(str);
+          range.deleteContents();
+          range.insertNode(document.createTextNode(str));
           this.setState({
             text: this.edit.current.innerText.split("\n"),
             Ast: markdownToAst(
@@ -151,16 +133,17 @@ export default class Docs extends Component {
               this.state.Ast
             ),
           });
+          console.log(event.target);
+          selection.collapseToEnd();
           event.target.blur();
           this.isSelected();
           return;
-
         default:
           str = selection.toString;
           break;
       }
 
-      let range = selection.getRangeAt(0);
+      range = selection.getRangeAt(0);
       range.deleteContents();
       range.insertNode(document.createTextNode(str));
       this.setState({
@@ -253,7 +236,6 @@ export default class Docs extends Component {
     this.headerList.current.style.display = "none";
   };
 
-
   edit = React.createRef();
   bold = React.createRef();
   xt = React.createRef();
@@ -335,7 +317,15 @@ export default class Docs extends Component {
               <br />
             </div>
           </div>
-
+          <button
+            ref
+            className={classnames(
+              icon.iconfont,
+              icon.iconJiantou,
+              style.toolsButton
+            )}
+            onClick={this.toolsClick("block")}
+          ></button>
           <button
             ref={this.bold}
             className={classnames(
@@ -343,7 +333,7 @@ export default class Docs extends Component {
               icon.iconBold,
               style.toolsButton
             )}
-            onClick={this.toolsClick("block")}
+            onClick={this.toolsClick("bold")}
           ></button>
           <button
             ref={this.xt}
@@ -363,8 +353,8 @@ export default class Docs extends Component {
           onMouseUp={this.isSelected}
         ></div>
         <div className={style.innerBlock}>
-          {this.state.Ast.map((item,index) => {
-            return AstToDom(item,index);
+          {this.state.Ast.map((item, index) => {
+            return AstToDom(item, index);
           })}
         </div>
       </div>
@@ -601,10 +591,10 @@ function substrToChildren(str, sp) {
   return children;
 }
 
-function AstToDom(item,index) {
+function AstToDom(item, index) {
   if (item.type === "header") {
     return (
-      <p key={'header'+index} className={headerLevel(item.level)}>
+      <p key={"header" + index} className={headerLevel(item.level)}>
         {item.children.map((child) => {
           return childToDom(child);
         })}
@@ -612,7 +602,7 @@ function AstToDom(item,index) {
     );
   } else if (item.type === "block") {
     return (
-      <p key={'block'+index} className={blockLevel(item.level)}>
+      <p key={"block" + index} className={blockLevel(item.level)}>
         {item.children.map((child) => {
           return childToDom(child);
         })}
@@ -621,7 +611,7 @@ function AstToDom(item,index) {
   } else if (item.type === "header&block") {
     return (
       <p
-      key={'header&block'+index}
+        key={"header&block" + index}
         className={classnames(
           blockLevel(item.b_level),
           headerLevel(item.h_level)
@@ -634,7 +624,7 @@ function AstToDom(item,index) {
     );
   } else if (item.type === "uList") {
     return (
-      <ul key={'ul'+index}>
+      <ul key={"ul" + index}>
         {item.children.map((child) => {
           return (
             <li>
@@ -648,7 +638,7 @@ function AstToDom(item,index) {
     );
   } else {
     return (
-      <p key={'text'+index}>
+      <p key={"text" + index}>
         {item.children.map((child) => {
           return childToDom(child);
         })}
