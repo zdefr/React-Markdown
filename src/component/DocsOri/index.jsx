@@ -67,7 +67,8 @@ export default class Docs extends Component {
           let range = document.createRange();
           range.setStartBefore(selection.anchorNode);
           range.setEndAfter(selection.anchorNode);
-          str = selection.anchorNode.nodeValue;
+          str = (selection.anchorNode.nodeValue?selection.anchorNode.nodeValue:selection.anchorNode.innerText);
+          console.log(selection.anchorNode);
           switch (level) {
             case 6:
               str = "###### " + str;
@@ -100,6 +101,8 @@ export default class Docs extends Component {
               this.state.Ast
             ),
           });
+          console.log(event.target);
+          selection.collapseToEnd();
           event.target.blur();
           this.isSelected();
           return;
@@ -250,10 +253,12 @@ export default class Docs extends Component {
     this.headerList.current.style.display = "none";
   };
 
+
   edit = React.createRef();
   bold = React.createRef();
   xt = React.createRef();
   headerList = React.createRef();
+  blockList = React.createRef();
 
   render() {
     return (
@@ -358,8 +363,8 @@ export default class Docs extends Component {
           onMouseUp={this.isSelected}
         ></div>
         <div className={style.innerBlock}>
-          {this.state.Ast.map((item) => {
-            return AstToDom(item);
+          {this.state.Ast.map((item,index) => {
+            return AstToDom(item,index);
           })}
         </div>
       </div>
@@ -596,10 +601,10 @@ function substrToChildren(str, sp) {
   return children;
 }
 
-function AstToDom(item) {
+function AstToDom(item,index) {
   if (item.type === "header") {
     return (
-      <p className={headerLevel(item.level)}>
+      <p key={'header'+index} className={headerLevel(item.level)}>
         {item.children.map((child) => {
           return childToDom(child);
         })}
@@ -607,7 +612,7 @@ function AstToDom(item) {
     );
   } else if (item.type === "block") {
     return (
-      <p className={blockLevel(item.level)}>
+      <p key={'block'+index} className={blockLevel(item.level)}>
         {item.children.map((child) => {
           return childToDom(child);
         })}
@@ -616,6 +621,7 @@ function AstToDom(item) {
   } else if (item.type === "header&block") {
     return (
       <p
+      key={'header&block'+index}
         className={classnames(
           blockLevel(item.b_level),
           headerLevel(item.h_level)
@@ -628,7 +634,7 @@ function AstToDom(item) {
     );
   } else if (item.type === "uList") {
     return (
-      <ul>
+      <ul key={'ul'+index}>
         {item.children.map((child) => {
           return (
             <li>
@@ -642,7 +648,7 @@ function AstToDom(item) {
     );
   } else {
     return (
-      <p>
+      <p key={'text'+index}>
         {item.children.map((child) => {
           return childToDom(child);
         })}
