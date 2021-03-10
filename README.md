@@ -1,8 +1,8 @@
 #### Markdown在线转义编辑器组件使用指南
 本项目基于react开发，可以以组件形式引用到项目中。
 ##### 组件
-**定位**：./src/component/DocsOri
-**使用**：
+定位：./src/component/DocsOri
+使用：
 > *//App.js*
 > *//直接在需要使用该组件的地方引入，以虚拟Dom声明方式使用即可*
 > *//本组件默认填充父元素，最小宽度为800px，可在 ./src/component/DocsOri/index.module.css(.outerBlock)中进行修改*
@@ -22,5 +22,5 @@
 
 ##### Demo
 ###### 本项目提供一个Demo
-启动：npm start
-编译：npm build
+* 启动：npm start
+* 编译：npm build
