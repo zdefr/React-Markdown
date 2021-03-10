@@ -10,14 +10,22 @@ export default class Docs extends Component {
   };
 
   change = () => {
-    this.setState({
-      text: this.edit.current.innerText.split("\n"),
-      Ast: markdownToAst(
-        this.edit.current.innerText.split("\n"),
-        this.state.text,
-        this.state.Ast
-      ),
-    });
+    if(this.timer!==null){
+      //console.log('节流');
+      clearTimeout(this.timer);
+    }
+    this.timer = setTimeout(() => {
+      //console.log('执行');
+      this.setState({
+        text: this.edit.current.innerText.split("\n"),
+        Ast: markdownToAst(
+          this.edit.current.innerText.split("\n"),
+          this.state.text,
+          this.state.Ast
+        ),
+      });
+      this.timer =null;
+    }, 1000);
   };
 
   toolsClick = (type) => {
