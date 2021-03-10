@@ -2,8 +2,15 @@
     background-color: white;
     border: 2px solid black;
     padding: 20px 40px;
-    overflow-y: scroll;
+    overflow-y:auto;
+    white-space: normal;
     outline: none;
+}
+
+p{
+    width: 100%;
+    word-wrap: break-word;
+	word-break: break-all;
 }
 
 .toolsBlock {
@@ -147,4 +154,16 @@
     height: 5px;
     background-color: gray;
     border-radius: 5px;
+}
+
+.indent_1{
+    margin-left: 60px;
+}
+
+.indent_2{
+    margin-left: 120px;
+}
+
+.indent_3{
+    margin-left: 180px;
 }

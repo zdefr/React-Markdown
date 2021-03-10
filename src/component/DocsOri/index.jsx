@@ -69,6 +69,17 @@ export default class Docs extends Component {
           str = selection.anchorNode.nodeValue
             ? selection.anchorNode.nodeValue
             : selection.anchorNode.innerText;
+          let startStr = "";
+          if (str.substring(0, 12) === "            ") {
+            startStr = "            ";
+            str = str.substring(12);
+          } else if (str.substring(0, 8) === "        ") {
+            startStr = "        ";
+            str = str.substring(8);
+          } else if (str.substring(0, 4) === "    ") {
+            startStr = "    ";
+            str = str.substring(4);
+          }
           switch (level) {
             case 6:
               str = "###### " + str;
@@ -91,6 +102,8 @@ export default class Docs extends Component {
             default:
               break;
           }
+
+          str = startStr+str;
           range.deleteContents();
           range.insertNode(document.createTextNode(str));
           this.setState({
@@ -101,7 +114,6 @@ export default class Docs extends Component {
               this.state.Ast
             ),
           });
-          console.log(event.target);
           selection.collapseToEnd();
           event.target.blur();
           this.isSelected();
@@ -113,16 +125,27 @@ export default class Docs extends Component {
           str = selection.anchorNode.nodeValue
             ? selection.anchorNode.nodeValue
             : selection.anchorNode.innerText;
-          let strs = str.split(' ');
-          if(strs[0][0]==='>'){
-            strs[0] = '>'+strs[0];
-          }else{
-            strs[0] = '> '+strs[0];
+            let startStr_b = "";
+            if (str.substring(0, 12) === "            ") {
+              startStr_b = "            ";
+              str = str.substring(12);
+            } else if (str.substring(0, 8) === "        ") {
+              startStr_b = "        ";
+              str = str.substring(8);
+            } else if (str.substring(0, 4) === "    ") {
+              startStr_b = "    ";
+              str = str.substring(4);
+            }
+          let strs = str.split(" ");
+          if (strs[0][0] === ">") {
+            strs[0] = ">" + strs[0];
+          } else {
+            strs[0] = "> " + strs[0];
           }
-          str = strs.reduce((acc,cur)=>{
-             return acc+' '+cur;
-          })
-          console.log(str);
+          str = strs.reduce((acc, cur) => {
+            return acc + " " + cur;
+          });
+          str=startStr_b+str;
           range.deleteContents();
           range.insertNode(document.createTextNode(str));
           this.setState({
@@ -133,7 +156,6 @@ export default class Docs extends Component {
               this.state.Ast
             ),
           });
-          console.log(event.target);
           selection.collapseToEnd();
           event.target.blur();
           this.isSelected();
@@ -390,31 +412,40 @@ function markdownToAst(text, preText, preAst) {
         if (!update) {
           Asts.push(preAst[astc - 1]);
           i += preAst[astc - 1].offset - 1;
-          console.log("list not update");
           continue;
         }
       } else {
         astc++;
         if (text[i] === preText[i]) {
           Asts.push(preAst[astc - 1]);
-          console.log("node not update");
           continue;
         }
       }
     } else {
       if (text[i] === preText[i]) {
-        console.log("node not update");
         continue;
       }
     }
 
-    const str = text[i];
+    let str = text[i];
     let ast = {
       type: "",
       line: i,
       offset: str.length,
       children: [],
+      indent: 0
     };
+
+    if (str.substring(0, 12) === "            ") {
+      ast.indent = 3;
+      str = str.substring(12);
+    } else if (str.substring(0, 8) === "        ") {
+      ast.indent = 2;
+      str = str.substring(8);
+    } else if (str.substring(0, 4) === "    ") {
+      ast.indent = 1;
+      str = str.substring(4);
+    }
 
     //确定外部类型
     if (str[0] === "#") {
@@ -505,15 +536,18 @@ function markdownToAst(text, preText, preAst) {
       ast.type = "uList";
       ast.offset = offsetLine;
       i += offsetLine - 1;
-    } else if(str.length>=3&&str.split('').every((item)=>{
-      if(item === '*'||item === '-' || item === '+'){
-        return true;
-      }else{
-        return false;
-      }
-    })){
-      ast.type = 'splitLine';
-    }else{
+    } else if (
+      str.length >= 3 &&
+      str.split("").every((item) => {
+        if (item === "*" || item === "-" || item === "+") {
+          return true;
+        } else {
+          return false;
+        }
+      })
+    ) {
+      ast.type = "splitLine";
+    } else {
       ast.type = "texts";
       ast.children = substrToChildren(str, "***");
     }
@@ -601,7 +635,13 @@ function substrToChildren(str, sp) {
 function AstToDom(item, index) {
   if (item.type === "header") {
     return (
-      <p key={"header" + index} className={headerLevel(item.level)}>
+      <p
+        key={"header" + index}
+        className={classnames(
+          headerLevel(item.level),
+          indentLevel(item.indent)
+        )}
+      >
         {item.children.map((child) => {
           return childToDom(child);
         })}
@@ -609,7 +649,10 @@ function AstToDom(item, index) {
     );
   } else if (item.type === "block") {
     return (
-      <p key={"block" + index} className={blockLevel(item.level)}>
+      <p
+        key={"block" + index}
+        className={classnames(blockLevel(item.level), indentLevel(item.indent))}
+      >
         {item.children.map((child) => {
           return childToDom(child);
         })}
@@ -621,7 +664,8 @@ function AstToDom(item, index) {
         key={"header&block" + index}
         className={classnames(
           blockLevel(item.b_level),
-          headerLevel(item.h_level)
+          headerLevel(item.h_level),
+          indentLevel(item.indent)
         )}
       >
         {item.children.map((child) => {
@@ -643,13 +687,11 @@ function AstToDom(item, index) {
         })}
       </ul>
     );
-  } else if(item.type === 'splitLine'){
+  } else if (item.type === "splitLine") {
+    return <p key={"line" + index} className={style.splitLine}></p>;
+  } else {
     return (
-      <p key={'line'+index} className={style.splitLine}></p>
-    );
-  }else{
-    return (
-      <p key={"text" + index}>
+      <p key={"text" + index} className={indentLevel(item.indent)}>
         {item.children.map((child) => {
           return childToDom(child);
         })}
@@ -707,6 +749,18 @@ function headerLevel(level) {
       return style.header_5;
     case 6:
       return style.header_6;
+    default:
+      break;
+  }
+}
+function indentLevel(level) {
+  switch (level) {
+    case 1:
+      return style.indent_1;
+    case 2:
+      return style.indent_2;
+    case 3:
+      return style.indent_3;
     default:
       break;
   }
