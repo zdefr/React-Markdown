@@ -30,3 +30,8 @@
 toolsList处有较多bug，且算法可优化（待优化）
 网络同步接口未实现（计划使用防抖同步上传ast）
 目前仅支持react中引用
+
+##### Demo
+###### 本项目提供一个Demo
+启动：npm start
+编译：npm build
