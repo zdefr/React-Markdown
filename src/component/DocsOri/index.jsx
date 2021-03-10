@@ -318,7 +318,6 @@ export default class Docs extends Component {
             </div>
           </div>
           <button
-            ref
             className={classnames(
               icon.iconfont,
               icon.iconJiantou,
@@ -506,7 +505,15 @@ function markdownToAst(text, preText, preAst) {
       ast.type = "uList";
       ast.offset = offsetLine;
       i += offsetLine - 1;
-    } else {
+    } else if(str.length>=3&&str.split('').every((item)=>{
+      if(item === '*'||item === '-' || item === '+'){
+        return true;
+      }else{
+        return false;
+      }
+    })){
+      ast.type = 'splitLine';
+    }else{
       ast.type = "texts";
       ast.children = substrToChildren(str, "***");
     }
@@ -636,7 +643,11 @@ function AstToDom(item, index) {
         })}
       </ul>
     );
-  } else {
+  } else if(item.type === 'splitLine'){
+    return (
+      <p key={'line'+index} className={style.splitLine}></p>
+    );
+  }else{
     return (
       <p key={"text" + index}>
         {item.children.map((child) => {
