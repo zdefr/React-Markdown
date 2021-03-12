@@ -7,11 +7,14 @@ export default class Docs extends Component {
   state = {
     text: [],
     Ast: [],
+    headerIsHover: false,
+    bold:false,
+    xt:false
   };
 
   change = () => {
-    if(this.timer!==null){
-      //console.log('节流');
+    if (this.timer !== null) {
+      //console.log('防抖');
       clearTimeout(this.timer);
     }
     this.timer = setTimeout(() => {
@@ -24,8 +27,8 @@ export default class Docs extends Component {
           this.state.Ast
         ),
       });
-      this.timer =null;
-    }, 1000);
+      this.timer = null;
+    }, 500);
   };
 
   toolsClick = (type) => {
@@ -111,7 +114,7 @@ export default class Docs extends Component {
               break;
           }
 
-          str = startStr+str;
+          str = startStr + str;
           range.deleteContents();
           range.insertNode(document.createTextNode(str));
           this.setState({
@@ -133,17 +136,17 @@ export default class Docs extends Component {
           str = selection.anchorNode.nodeValue
             ? selection.anchorNode.nodeValue
             : selection.anchorNode.innerText;
-            let startStr_b = "";
-            if (str.substring(0, 12) === "            ") {
-              startStr_b = "            ";
-              str = str.substring(12);
-            } else if (str.substring(0, 8) === "        ") {
-              startStr_b = "        ";
-              str = str.substring(8);
-            } else if (str.substring(0, 4) === "    ") {
-              startStr_b = "    ";
-              str = str.substring(4);
-            }
+          let startStr_b = "";
+          if (str.substring(0, 12) === "            ") {
+            startStr_b = "            ";
+            str = str.substring(12);
+          } else if (str.substring(0, 8) === "        ") {
+            startStr_b = "        ";
+            str = str.substring(8);
+          } else if (str.substring(0, 4) === "    ") {
+            startStr_b = "    ";
+            str = str.substring(4);
+          }
           let strs = str.split(" ");
           if (strs[0][0] === ">") {
             strs[0] = ">" + strs[0];
@@ -153,7 +156,7 @@ export default class Docs extends Component {
           str = strs.reduce((acc, cur) => {
             return acc + " " + cur;
           });
-          str=startStr_b+str;
+          str = startStr_b + str;
           range.deleteContents();
           range.insertNode(document.createTextNode(str));
           this.setState({
@@ -258,18 +261,21 @@ export default class Docs extends Component {
     }
   };
 
-  headerIn = () => {
-    this.headerList.current.style.display = "block";
-  };
-
-  headerOut = () => {
-    this.headerList.current.style.display = "none";
+  headerHover = (t) => {
+    if (t) {
+      this.setState({
+        headerIsHover: true,
+      });
+    } else {
+      this.setState({
+        headerIsHover: false,
+      });
+    }
   };
 
   edit = React.createRef();
   bold = React.createRef();
   xt = React.createRef();
-  headerList = React.createRef();
   blockList = React.createRef();
 
   render() {
@@ -280,8 +286,12 @@ export default class Docs extends Component {
 
           <div
             className={style.outHeader}
-            onMouseEnter={this.headerIn}
-            onMouseLeave={this.headerOut}
+            onMouseEnter={() => {
+              this.headerHover(true);
+            }}
+            onMouseLeave={() => {
+              this.headerHover(false);
+            }}
           >
             <button
               className={classnames(
@@ -290,7 +300,10 @@ export default class Docs extends Component {
                 style.toolsButton
               )}
             ></button>
-            <div ref={this.headerList} className={style.headerHover}>
+            <div
+              className={style.headerHover}
+              style={{ display: this.state.headerIsHover ? "block" : "none" }}
+            >
               <button
                 className={classnames(
                   icon.iconfont,
@@ -441,7 +454,7 @@ function markdownToAst(text, preText, preAst) {
       line: i,
       offset: str.length,
       children: [],
-      indent: 0
+      indent: 0,
     };
 
     if (str.substring(0, 12) === "            ") {
