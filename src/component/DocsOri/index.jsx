@@ -8,8 +8,8 @@ export default class Docs extends Component {
     text: [],
     Ast: [],
     headerIsHover: false,
-    bold:false,
-    xt:false
+    bold: false,
+    xt: false,
   };
 
   change = () => {
@@ -41,6 +41,52 @@ export default class Docs extends Component {
       let str = selection.toString();
       let range = document.createRange();
       switch (type) {
+        case "plus":
+          range.setStartBefore(selection.anchorNode);
+          range.setEndAfter(selection.anchorNode);
+          str = selection.anchorNode.nodeValue
+            ? selection.anchorNode.nodeValue
+            : selection.anchorNode.innerText;
+          str = "    "+str;
+          range.deleteContents();
+          range.insertNode(document.createTextNode(str));
+          this.setState({
+            text: this.edit.current.innerText.split("\n"),
+            Ast: markdownToAst(
+              this.edit.current.innerText.split("\n"),
+              this.state.text,
+              this.state.Ast
+            ),
+          });
+          selection.collapseToEnd();
+          event.target.blur();
+          this.isSelected();
+          return;
+        case "reduce":
+          range.setStartBefore(selection.anchorNode);
+          range.setEndAfter(selection.anchorNode);
+          str = selection.anchorNode.nodeValue
+            ? selection.anchorNode.nodeValue
+            : selection.anchorNode.innerText;
+          if(str.substring(0,4)==="    "){
+            str = str.substring(4);
+          }else{
+            return;
+          }
+          range.deleteContents();
+          range.insertNode(document.createTextNode(str));
+          this.setState({
+            text: this.edit.current.innerText.split("\n"),
+            Ast: markdownToAst(
+              this.edit.current.innerText.split("\n"),
+              this.state.text,
+              this.state.Ast
+            ),
+          });
+          selection.collapseToEnd();
+          event.target.blur();
+          this.isSelected();
+          return;
         case "bold":
           if (
             str.substring(0, 2) === "**" &&
@@ -193,37 +239,38 @@ export default class Docs extends Component {
   };
 
   isSelected = () => {
-    let bold=false,xt=false;
+    let bold = false,
+      xt = false;
     if (document.getSelection().isCollapsed) {
-        bold=false;
-        xt=false;
+      bold = false;
+      xt = false;
     } else {
       const str = document.getSelection().toString();
       if (
         str.substring(0, 3) === "***" &&
         str.substring(str.length - 3, str.length) === "***"
       ) {
-          bold=true;
-          xt=true;
+        bold = true;
+        xt = true;
       } else if (
         str.substring(0, 2) === "**" &&
         str.substring(str.length - 2, str.length) === "**"
       ) {
-          bold=true;
-          xt=false;
+        bold = true;
+        xt = false;
       } else if (str[0] === "*" && str[str.length - 1] === "*") {
-          bold=false;
-          xt=true;
+        bold = false;
+        xt = true;
       } else {
-          bold=false;
-          xt=false;
+        bold = false;
+        xt = false;
       }
     }
 
     this.setState({
-      bold:bold,
-      xt:xt
-    })
+      bold: bold,
+      xt: xt,
+    });
   };
 
   headerHover = (t) => {
@@ -240,7 +287,7 @@ export default class Docs extends Component {
 
   edit = React.createRef();
   render() {
-    const {bold,xt} = this.state;
+    const { bold, xt } = this.state;
     return (
       <div className={style.outerBlock}>
         <div className={style.toolsBlock}>
@@ -333,7 +380,7 @@ export default class Docs extends Component {
           <button
             className={classnames(
               icon.iconfont,
-              bold?icon.iconJiacuxuanzhong:icon.iconBold,
+              bold ? icon.iconJiacuxuanzhong : icon.iconBold,
               style.toolsButton
             )}
             onClick={this.toolsClick("bold")}
@@ -341,10 +388,26 @@ export default class Docs extends Component {
           <button
             className={classnames(
               icon.iconfont,
-              xt?icon.iconXietixuanzhong:icon.iconXieti,
+              xt ? icon.iconXietixuanzhong : icon.iconXieti,
               style.toolsButton
             )}
             onClick={this.toolsClick("xt")}
+          ></button>
+          <button
+            className={classnames(
+              icon.iconfont,
+              icon.iconShuangjiantouyou,
+              style.toolsButton
+            )}
+            onClick={this.toolsClick("plus")}
+          ></button>
+          <button
+            className={classnames(
+              icon.iconfont,
+              icon.iconShuangjiantouzuo,
+              style.toolsButton
+            )}
+            onClick={this.toolsClick("reduce")}
           ></button>
         </div>
         <div

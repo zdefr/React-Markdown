@@ -8,7 +8,6 @@
 }
 
 p{
-    width: 100%;
     word-wrap: break-word;
 	word-break: break-all;
 }
@@ -18,7 +17,7 @@ p{
     background-color: white;
     border: 2px solid black;
     display: grid;
-    grid-template-columns: 100px 30px 30px 30px 30px 1fr;
+    grid-template-columns: 100px 30px 30px 30px 30px 30px 30px 1fr;
     line-height: 23px;
     z-index: 5;
     
