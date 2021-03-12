@@ -193,72 +193,37 @@ export default class Docs extends Component {
   };
 
   isSelected = () => {
+    let bold=false,xt=false;
     if (document.getSelection().isCollapsed) {
-      this.bold.current.className = classnames(
-        icon.iconfont,
-        icon.iconBold,
-        style.toolsButton
-      );
-      this.xt.current.className = classnames(
-        icon.iconfont,
-        icon.iconXieti,
-        style.toolsButton
-      );
-      return;
+        bold=false;
+        xt=false;
     } else {
       const str = document.getSelection().toString();
       if (
         str.substring(0, 3) === "***" &&
         str.substring(str.length - 3, str.length) === "***"
       ) {
-        this.bold.current.className = classnames(
-          icon.iconfont,
-          icon.iconJiacuxuanzhong,
-          style.toolsButton
-        );
-        this.xt.current.className = classnames(
-          icon.iconfont,
-          icon.iconXietixuanzhong,
-          style.toolsButton
-        );
+          bold=true;
+          xt=true;
       } else if (
         str.substring(0, 2) === "**" &&
         str.substring(str.length - 2, str.length) === "**"
       ) {
-        this.bold.current.className = classnames(
-          icon.iconfont,
-          icon.iconJiacuxuanzhong,
-          style.toolsButton
-        );
-        this.xt.current.className = classnames(
-          icon.iconfont,
-          icon.iconXieti,
-          style.toolsButton
-        );
+          bold=true;
+          xt=false;
       } else if (str[0] === "*" && str[str.length - 1] === "*") {
-        this.xt.current.className = classnames(
-          icon.iconfont,
-          icon.iconXietixuanzhong,
-          style.toolsButton
-        );
-        this.bold.current.className = classnames(
-          icon.iconfont,
-          icon.iconBold,
-          style.toolsButton
-        );
+          bold=false;
+          xt=true;
       } else {
-        this.bold.current.className = classnames(
-          icon.iconfont,
-          icon.iconBold,
-          style.toolsButton
-        );
-        this.xt.current.className = classnames(
-          icon.iconfont,
-          icon.iconXieti,
-          style.toolsButton
-        );
+          bold=false;
+          xt=false;
       }
     }
+
+    this.setState({
+      bold:bold,
+      xt:xt
+    })
   };
 
   headerHover = (t) => {
@@ -274,11 +239,8 @@ export default class Docs extends Component {
   };
 
   edit = React.createRef();
-  bold = React.createRef();
-  xt = React.createRef();
-  blockList = React.createRef();
-
   render() {
+    const {bold,xt} = this.state;
     return (
       <div className={style.outerBlock}>
         <div className={style.toolsBlock}>
@@ -369,19 +331,17 @@ export default class Docs extends Component {
             onClick={this.toolsClick("block")}
           ></button>
           <button
-            ref={this.bold}
             className={classnames(
               icon.iconfont,
-              icon.iconBold,
+              bold?icon.iconJiacuxuanzhong:icon.iconBold,
               style.toolsButton
             )}
             onClick={this.toolsClick("bold")}
           ></button>
           <button
-            ref={this.xt}
             className={classnames(
               icon.iconfont,
-              icon.iconXieti,
+              xt?icon.iconXietixuanzhong:icon.iconXieti,
               style.toolsButton
             )}
             onClick={this.toolsClick("xt")}
